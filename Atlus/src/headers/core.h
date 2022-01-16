@@ -9,7 +9,6 @@
 #pragma region Core Functions
 
 // TD: Passer les fonctions en méthodes de classe et rajouter des versions impératives pour les exports ?
-// TD: Commenter le reste des fonctions
 
 /// <summary>
 /// Fait passer les valeurs en entrée à la couche de sortie en appliquant la tangente hyperbolique

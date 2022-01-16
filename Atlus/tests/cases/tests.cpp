@@ -13,8 +13,7 @@ TEST_METHOD(classificationLinearSimple)
 	m2 outputs = { { 1 }, { -1 }, { -1 } };
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateClassification(inputs, outputs) << std::endl;
+	handler.evaluateClassification(inputs, outputs);
 }
 
 TEST_METHOD(classificationLinearMultiple)
@@ -30,9 +29,7 @@ TEST_METHOD(classificationXOR)
 	m2 outputs = { { 1 }, { -1 }, { -1 }, {-1} };
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateClassification(inputs, outputs) << std::endl;
-
+	handler.evaluateClassification(inputs, outputs);
 }
 
 TEST_METHOD(classificationCross)
@@ -58,8 +55,7 @@ TEST_METHOD(regressionLinearSimple2D)
 	m2 outputs = { { 2 }, { 3 } };
 
 	handler.trainRegression(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateRegression(inputs, outputs) << std::endl;
+	handler.evaluateRegression(inputs, outputs);
 }
 
 TEST_METHOD(regressionLinearNonSimple2D)
@@ -70,8 +66,7 @@ TEST_METHOD(regressionLinearNonSimple2D)
 	m2 outputs = { { 2 }, { 3 }, { 2.5 } };
 
 	handler.trainRegression(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateRegression(inputs, outputs) << std::endl;
+	handler.evaluateRegression(inputs, outputs);
 }
 
 TEST_METHOD(regressionLinearSimple3D)
@@ -82,8 +77,7 @@ TEST_METHOD(regressionLinearSimple3D)
 	m2 outputs = { { 2 }, { 3 }, {2.5} };
 
 	handler.trainRegression(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateRegression(inputs, outputs) << std::endl;
+	handler.evaluateRegression(inputs, outputs);
 }
 
 TEST_METHOD(regressionLinearTricky3D)
@@ -94,8 +88,7 @@ TEST_METHOD(regressionLinearTricky3D)
 	m2 outputs = { { 1 }, { 2 }, {3} };
 
 	handler.trainRegression(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateRegression(inputs, outputs) << std::endl;
+	handler.evaluateRegression(inputs, outputs);
 }
 
 TEST_METHOD(regressionNonLinearSimple3D)
@@ -106,6 +99,5 @@ TEST_METHOD(regressionNonLinearSimple3D)
 	m2 outputs = { { 2 }, { 1 }, {-2}, {-1} };
 
 	handler.trainRegression(inputs, outputs, 0.05, 10000);
-
-	std::cout << handler.evaluateRegression(inputs, outputs) << std::endl;
+	handler.evaluateRegression(inputs, outputs);
 }

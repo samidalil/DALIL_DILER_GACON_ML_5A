@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iterator>
+#include <iostream>
 
 struct MLPHandler
 {
@@ -37,12 +38,14 @@ struct MLPHandler
 		const double* inputArr = flatSamples(inputs);
 		const double* outputArr = flatSamples(outputs);
 
-		const double result = evaluateModelAccuracyClassification(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size());
+		const double result = evaluateModelAccuracyClassification(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size()) * 100;
 
 		delete[] inputArr;
 		delete[] outputArr;
 
-		return result * 100;
+		std::cout << "Accuracy : " << result << "%" << std::endl;
+
+		return result;
 	}
 
 	double evaluateRegression(m2 inputs, m2 outputs)
@@ -50,12 +53,14 @@ struct MLPHandler
 		const double* inputArr = flatSamples(inputs);
 		const double* outputArr = flatSamples(outputs);
 
-		const double result = evaluateModelAccuracyRegression(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size());
+		const double result = evaluateModelAccuracyRegression(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size()) * 100;
 
 		delete[] inputArr;
 		delete[] outputArr;
 
-		return result * 100;
+		std::cout << "Accuracy : " << result << "%" << std::endl;
+
+		return result;
 	}
 
 	m1 predictClassification(m1 input)
