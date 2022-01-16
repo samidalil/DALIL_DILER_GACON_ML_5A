@@ -344,7 +344,7 @@ DllExport double* predictMlpModelRegression(
 }
 
 /// <summary>
-/// Evalue le taux de précision du modèle
+/// Evalue le taux de précision du modèle de classification
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
 /// <param name="samplesInputs">Tableau d'entrées</param>
@@ -353,7 +353,7 @@ DllExport double* predictMlpModelRegression(
 /// <param name="inputDim">Taille d'une entrée</param>
 /// <param name="outputDim">Taille d'une sortie</param>
 /// <returns>Taux de précision du modèle</returns>
-DllExport double evaluateModelAccuracy(
+DllExport double evaluateModelAccuracyClassification(
 	MLPData* model,
 	const double samplesInputs[],
 	const double samplesExpectedOutputs[],
@@ -371,6 +371,42 @@ DllExport double evaluateModelAccuracy(
 		v = predictMlpModelClassification(model, samplesInputs + (inputDim * i));
 		r = *v;
 
+		delete[] v;
+		// TD : Voir la méthode d'évaluation de précision
+		if (r * samplesExpectedOutputs[outputDim * i] >= 0) totalGoodPredictions += 1;
+	}
+
+	return (double)totalGoodPredictions / (double)sampleCount;
+}
+
+/// <summary>
+/// Evalue le taux de précision du modèle de régression
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons de test</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <returns>Taux de précision du modèle</returns>
+DllExport double evaluateModelAccuracyRegression(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim
+)
+{
+	uint totalGoodPredictions = 0;
+	double* v;
+	double r;
+
+	for (uint i = 0; i < sampleCount; ++i)
+	{
+		v = predictMlpModelRegression(model, samplesInputs + (inputDim * i));
+		r = *v;
+		
 		delete[] v;
 		// TD : Voir la méthode d'évaluation de précision
 		if (r * samplesExpectedOutputs[outputDim * i] >= 0) totalGoodPredictions += 1;

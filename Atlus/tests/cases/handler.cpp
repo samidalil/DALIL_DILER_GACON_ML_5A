@@ -32,12 +32,25 @@ struct MLPHandler
 		delete this->model;
 	}
 
-	double evaluate(m2 inputs, m2 outputs)
+	double evaluateClassification(m2 inputs, m2 outputs)
 	{
 		const double* inputArr = flatSamples(inputs);
 		const double* outputArr = flatSamples(outputs);
 
-		const double result = evaluateModelAccuracy(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size());
+		const double result = evaluateModelAccuracyClassification(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size());
+
+		delete[] inputArr;
+		delete[] outputArr;
+
+		return result * 100;
+	}
+
+	double evaluateRegression(m2 inputs, m2 outputs)
+	{
+		const double* inputArr = flatSamples(inputs);
+		const double* outputArr = flatSamples(outputs);
+
+		const double result = evaluateModelAccuracyRegression(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size());
 
 		delete[] inputArr;
 		delete[] outputArr;
