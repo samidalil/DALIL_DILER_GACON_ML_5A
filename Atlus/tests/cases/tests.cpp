@@ -1,7 +1,7 @@
 #include "../headers/framework.h"
+#include "../headers/utils.h"
 
 #include "handler.cpp"
-#include "utils.cpp"
 
 #include <iostream>
 
@@ -18,7 +18,10 @@ TEST_METHOD(classificationLinearSimple)
 
 TEST_METHOD(classificationLinearMultiple)
 {
+	MLPHandler handler({ 2, 1 });
 
+	m2 inputs = classificationLinearMultipleX();
+	m2 outputs = classificationLinearMultipleY();
 }
 
 TEST_METHOD(classificationXOR)
