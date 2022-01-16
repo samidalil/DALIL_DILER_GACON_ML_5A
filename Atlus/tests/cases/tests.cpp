@@ -22,6 +22,9 @@ TEST_METHOD(classificationLinearMultiple)
 
 	m2 inputs = classificationLinearMultipleX();
 	m2 outputs = classificationLinearMultipleY();
+
+	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.evaluateClassification(inputs, outputs);
 }
 
 TEST_METHOD(classificationXOR)
