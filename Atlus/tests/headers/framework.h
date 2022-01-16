@@ -1,11 +1,11 @@
 #pragma once
 
-#include <stack>
+#include <queue>
 #include <string>
 
 struct TestMethodCollector
 {
-	static std::stack<TestMethodCollector*> instances;
+	static std::queue<TestMethodCollector*> instances;
 
 	TestMethodCollector() { TestMethodCollector::instances.push(this); }
 

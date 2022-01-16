@@ -1,27 +1,26 @@
 #include "headers/framework.h"
 
-#include <stack>
 #include <iostream>
 
-std::stack<TestMethodCollector*> TestMethodCollector::instances;
+std::queue<TestMethodCollector*> TestMethodCollector::instances;
 
 int main()
 {
 	clock_t start;
-	clock_t end;
+	float delay;
 	TestMethodCollector* i;
 	
 	while (!TestMethodCollector::instances.empty())
 	{
-		i = TestMethodCollector::instances.top();
+		i = TestMethodCollector::instances.front();
 		
 		std::cout << "Beginning test \"" << i->getName() << "\" :" << std::endl << std::endl;
 		
 		start = clock();
 		i->invoke();
-		end = clock();
+		delay = ((float)clock() - start) / CLOCKS_PER_SEC;
 		
-		std::cout << std::endl << "Finished test \"" << i->getName() << "\" in " << ((float)end - start) / CLOCKS_PER_SEC << " seconds" << std::endl;
+		std::cout << std::endl << "Finished test \"" << i->getName() << "\" in " << delay << " seconds" << std::endl;
 
 		TestMethodCollector::instances.pop();
 	}
