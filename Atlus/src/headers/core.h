@@ -136,7 +136,7 @@ DllExport double* predictMlpModelClassification(MLPData* model, const double sam
 DllExport double* predictMlpModelRegression(MLPData* model, const double sampleInputs[]);
 
 /// <summary>
-/// Evalue le taux de précision du modèle
+/// Evalue le taux de précision du modèle de classification
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
 /// <param name="samplesInputs">Tableau d'entrées</param>
@@ -145,7 +145,26 @@ DllExport double* predictMlpModelRegression(MLPData* model, const double sampleI
 /// <param name="inputDim">Taille d'une entrée</param>
 /// <param name="outputDim">Taille d'une sortie</param>
 /// <returns>Taux de précision du modèle</returns>
-DllExport double evaluateModelAccuracy(
+DllExport double evaluateModelAccuracyClassification(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim
+);
+
+/// <summary>
+/// Evalue le taux de précision du modèle de régression
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons de test</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <returns>Taux de précision du modèle</returns>
+DllExport double evaluateModelAccuracyRegression(
 	MLPData* model,
 	const double samplesInputs[],
 	const double samplesExpectedOutputs[],
