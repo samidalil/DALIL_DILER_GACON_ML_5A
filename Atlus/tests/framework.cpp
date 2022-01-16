@@ -3,17 +3,17 @@
 #include <stack>
 #include <iostream>
 
-std::stack<TestMethod*> TestMethod::instances;
+std::stack<TestMethodCollector*> TestMethodCollector::instances;
 
 int main()
 {
 	clock_t start;
 	clock_t end;
-	TestMethod* i;
+	TestMethodCollector* i;
 	
-	while (!TestMethod::instances.empty())
+	while (!TestMethodCollector::instances.empty())
 	{
-		i = TestMethod::instances.top();
+		i = TestMethodCollector::instances.top();
 		
 		std::cout << "Beginning test \"" << i->getName() << "\" :" << std::endl << std::endl;
 		
@@ -23,7 +23,7 @@ int main()
 		
 		std::cout << std::endl << "Finished test \"" << i->getName() << "\" in " << ((float)end - start) / CLOCKS_PER_SEC << " seconds" << std::endl;
 
-		TestMethod::instances.pop();
+		TestMethodCollector::instances.pop();
 	}
 	return 0;
 }

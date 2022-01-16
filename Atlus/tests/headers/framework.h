@@ -3,18 +3,18 @@
 #include <stack>
 #include <string>
 
-struct TestMethod
+struct TestMethodCollector
 {
-	static std::stack<TestMethod*> instances;
+	static std::stack<TestMethodCollector*> instances;
 
-	TestMethod() { TestMethod::instances.push(this); }
+	TestMethodCollector() { TestMethodCollector::instances.push(this); }
 
 	virtual std::string getName() const = 0;
 	virtual void invoke() = 0;
 };
 
 #define TEST_METHOD(testName) \
-struct testName : public TestMethod \
+struct testName : public TestMethodCollector \
 { \
 	static testName si; \
 	std::string getName() const override { return #testName; } \

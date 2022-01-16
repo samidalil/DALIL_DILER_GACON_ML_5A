@@ -372,6 +372,7 @@ DllExport double evaluateModelAccuracy(
 		r = *v;
 
 		delete[] v;
+		// TD : Voir la méthode d'évaluation de précision
 		if (r * samplesExpectedOutputs[outputDim * i] >= 0) totalGoodPredictions += 1;
 	}
 
