@@ -1,15 +1,15 @@
-#include "../headers/core.h"
+#include "headers/core.h"
 
 #include <algorithm>
 #include <cassert>
 #include <time.h>
-#include "../headers/utils.h"
+#include "headers/utils.h"
 
 /// <summary>
 /// Fait passer les valeurs en entrée à la couche de sortie en appliquant la tangente hyperbolique
 /// de la somme pondérée des valeurs de sortie des neurones de chaque couche
 /// </summary>
-/// <param name="model">Données du modèle</param>
+/// <param name="model">Adresse du modèle</param>
 /// <param name="sampleInputs">Valeurs d'entrée</param>
 void forwardPassClassification(MLPData* model, const double sampleInputs[])
 {
@@ -35,7 +35,7 @@ void forwardPassClassification(MLPData* model, const double sampleInputs[])
 /// de la somme pondérée des valeurs de sortie des neurones de chaque couche
 /// La tangente hyperbolique n'est pas appliquée sur la couche de sortie (régression)
 /// </summary>
-/// <param name="model">Données du modèle</param>
+/// <param name="model">Adresse du modèle</param>
 /// <param name="sampleInputs">Valeurs d'entrée</param>
 void forwardPassRegression(MLPData* model, const double sampleInputs[])
 {
@@ -80,7 +80,7 @@ void forwardPassRegression(MLPData* model, const double sampleInputs[])
 /// <summary>
 /// Rétropropage les valeurs d'erreur
 /// </summary>
-/// <param name="model">Données du modèle</param>
+/// <param name="model">Adresse du modèle</param>
 /// <param name="alpha">Pas d'apprentissage</param>
 void backpropagateAndLearnMlpModel(MLPData* model, const double alpha)
 {
@@ -107,6 +107,12 @@ void backpropagateAndLearnMlpModel(MLPData* model, const double alpha)
 	}
 }
 
+/// <summary>
+/// Retourne un pointeur vers les données d'un modèle nouvellement généré
+/// </summary>
+/// <param name="npl">Tableau contenant le nombre de neurones par couche</param>
+/// <param name="nplSize">Taille du tableau</param>
+/// <returns>L'adresse du modèle</returns>
 DllExport MLPData* createMlpModel(uint npl[], uint nplSize)
 {
 	srand(time(NULL));
@@ -167,6 +173,13 @@ DllExport MLPData* createMlpModel(uint npl[], uint nplSize)
 	return new MLPData(W, std::vector<uint>(npl, npl + nplSize), X, deltas);
 }
 
+/// <summary>
+/// Entraîne le modèle pour de la classification avec une entrée et sa sortie correspondante
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <param name="sampleExpectedOutput">Valeurs de sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
 DllExport void trainMlpModelClassificationSingle(
 	MLPData* model,
 	const double sampleInputs[],
@@ -188,6 +201,13 @@ DllExport void trainMlpModelClassificationSingle(
 	backpropagateAndLearnMlpModel(model, alpha);
 }
 
+/// <summary>
+/// Entraîne le modèle pour de la régression avec une entrée et sa sortie correspondante
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <param name="sampleExpectedOutput">Valeurs de sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
 DllExport void trainMlpModelRegressionSingle(
 	MLPData* model,
 	const double sampleInputs[],
@@ -209,6 +229,17 @@ DllExport void trainMlpModelRegressionSingle(
 	backpropagateAndLearnMlpModel(model, alpha);
 }
 
+/// <summary>
+/// Entraîne le modèle pour de la classification avec plusieurs entrées et leurs sorties correspondantes
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre de samples d'entraînement</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+/// <param name="epochs">Nombre d'epochs pour cet entraînement</param>
 DllExport void trainMlpModelClassification(
 	MLPData* model,
 	const double samplesInputs[],
@@ -217,13 +248,13 @@ DllExport void trainMlpModelClassification(
 	const uint inputDim,
 	const uint outputDim,
 	const double alpha,
-	uint nbIter
+	uint epochs
 )
 {
 	assert(("Input should have as many elements as there are neurons on the first hidden layer", inputDim == model->npl[0]));
 	assert(("Output should have as many elements as there are neurons on the last hidden layer", outputDim == model->npl[model->L]));
 
-	while (nbIter--)
+	while (epochs--)
 	{
 		uint k = (rand() % sampleCount) * inputDim;
 
@@ -236,6 +267,17 @@ DllExport void trainMlpModelClassification(
 	}
 }
 
+/// <summary>
+/// Entraîne le modèle pour de la régression avec plusieurs entrées et leurs sorties correspondantes
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons d'entraînement</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+/// <param name="epochs">Nombre d'epochs pour cet entraînement</param>
 DllExport void trainMlpModelRegression(
 	MLPData* model,
 	const double samplesInputs[],
@@ -244,13 +286,13 @@ DllExport void trainMlpModelRegression(
 	const uint inputDim,
 	const uint outputDim,
 	const double alpha,
-	uint nbIter
+	uint epochs
 )
 {
 	assert(("Input should have as many elements as there are neurons on the first hidden layer", inputDim == model->npl[0]));
 	assert(("Output should have as many elements as there are neurons on the last hidden layer", outputDim == model->npl[model->L]));
 
-	while (nbIter--)
+	while (epochs--)
 	{
 		uint k = (rand() % sampleCount) * inputDim;
 
@@ -263,6 +305,12 @@ DllExport void trainMlpModelRegression(
 	}
 }
 
+/// <summary>
+/// Retourne la prédiction de classification pour l'entrée fournie
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <returns>Valeurs de sorties prédites</returns>
 DllExport double* predictMlpModelClassification(
 	MLPData* model,
 	const double sampleInputs[]
@@ -276,6 +324,12 @@ DllExport double* predictMlpModelClassification(
 	return result;
 }
 
+/// <summary>
+/// Retourne la prédiction de régression pour l'entrée fournie
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <returns>Valeurs de sorties prédites</returns>
 DllExport double* predictMlpModelRegression(
 	MLPData* model,
 	const double sampleInputs[]
@@ -289,6 +343,16 @@ DllExport double* predictMlpModelRegression(
 	return result;
 }
 
+/// <summary>
+/// Evalue le taux de précision du modèle
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons de test</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <returns>Taux de précision du modèle</returns>
 DllExport double evaluateModelAccuracy(
 	MLPData* model,
 	const double samplesInputs[],
@@ -314,11 +378,20 @@ DllExport double evaluateModelAccuracy(
 	return (double)totalGoodPredictions / (double)sampleCount;
 }
 
+/// <summary>
+/// Détruit la ressource du modèle
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
 DllExport void destroyMlpModel(MLPData* model)
 {
 	delete model;
 }
 
+/// <summary>
+/// Détruit un tableau de résultat de prédiction du modèle
+/// </summary>
+/// <param name="result">Adresse du tableau de données</param>
+/// <returns></returns>
 DllExport void destroyMlpResult(const double* result)
 {
 	delete[] result;
