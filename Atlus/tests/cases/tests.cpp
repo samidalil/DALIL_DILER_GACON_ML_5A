@@ -45,7 +45,7 @@ TEST_METHOD(classificationLinearMultiple)
 
 TEST_METHOD(classificationXOR)
 {
-	MLPHandler handler({ 2, 1 });
+	MLPHandler handler({ 2, 2, 1 });
 
 	m2 inputs = { { 1, 0 }, { 0, 1 }, {0, 0}, {1, 1} };
 	m2 outputs = { { 1 }, { -1 }, { -1 }, {-1} };
@@ -142,7 +142,7 @@ TEST_METHOD(regressionLinearSimple2D)
 
 TEST_METHOD(regressionLinearNonSimple2D)
 {
-	MLPHandler handler({ 1, 1, 1 }); //?
+	MLPHandler handler({ 1, 3, 1 });
 
 	m2 inputs = { {1}, {2}, {3} };
 	m2 outputs = { { 2 }, { 3 }, { 2.5 } };
