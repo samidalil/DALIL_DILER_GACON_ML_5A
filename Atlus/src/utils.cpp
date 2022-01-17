@@ -2,8 +2,13 @@
 
 #include <stdlib.h>
 
+constexpr double RAND_MAX_D = (double)RAND_MAX + (double)1;
+
+/// <summary>
+/// Génère un nombre pseudo-aléatoire
+/// </summary>
+/// <returns>Un nombre décimal aléatoire entre 0 inclus et 1 non inclus</returns>
 double random()
 {
-	// TD: Doit retourner une valeur entre 0 inclus et 1 non inclus, pas 0 inclus et 1 inclus
-	return (double)rand() / RAND_MAX;
+	return (double)rand() / RAND_MAX_D;
 }

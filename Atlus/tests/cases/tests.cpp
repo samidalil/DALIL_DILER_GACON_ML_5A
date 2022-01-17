@@ -18,7 +18,21 @@ TEST_METHOD(classificationLinearSimple)
 
 TEST_METHOD(classificationLinearMultiple)
 {
+	MLPHandler handler({ 2, 1 });
 
+	m2 inputs;
+	m2 outputs;
+	
+	srand(time(NULL));
+
+	for (int i = 0; i < 50; i++) inputs.push_back({ random() * 0.9 + 1.0, random() * 0.9 + 1.0 });
+	for (int i = 0; i < 50; i++) inputs.push_back({ random() * 0.9 + 2.0, random() * 0.9 + 2.0 });
+
+	for (int i = 0; i < 50; i++) outputs.push_back({ 1 });
+	for (int i = 0; i < 50; i++) outputs.push_back({ -1 });
+
+	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.evaluateClassification(inputs, outputs);
 }
 
 TEST_METHOD(classificationXOR)
