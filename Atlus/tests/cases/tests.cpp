@@ -61,9 +61,13 @@ TEST_METHOD(classificationCross)
 	srand(time(NULL));
 
 	for (auto i : range(500)) inputs.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
-	for (auto p : inputs) outputs.push_back(
-		(abs(p[0]) <= 0.3 || abs(p[1]) <= 0.3) ? m1({ 1 }) : m1({ -1 })
-	);
+	for (auto p : inputs)
+	{
+		if (abs(p[0]) <= 0.3 || abs(p[1]) <= 0.3)
+			outputs.push_back({ 1 });
+		else
+			outputs.push_back({ -1 });
+	}
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
 	handler.evaluateClassification(inputs, outputs);
@@ -84,16 +88,14 @@ TEST_METHOD(classificationMultiCross)
 	srand(time(NULL));
 
 	for (auto i : range(1000)) inputs.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
-	/*for (auto p : inputs) outputs.push_back(
-		abs(p[0]) <= 0.3 || abs(p[1]) <= 0.3 ? m1({ 1 }) : m1({ -1 })
-	);*/
-	for (int i = 0; i < 1000; i++) {
-		if (abs(fmod(inputs[i][0], 0.5)) <= 0.25 && abs(fmod(inputs[i][1], 0.5)) > 0.25)
-			outputs.push_back({ 1,0,0 });
-		else if (abs(fmod(inputs[i][0], 0.5)) > 0.25 && abs(fmod(inputs[i][1], 0.5)) <= 0.25)
-			outputs.push_back({ 0,1,0 });
+	for (auto p : inputs)
+	{
+		if (abs(fmod(p[0], 0.5)) <= 0.25 && abs(fmod(p[1], 0.5)) > 0.25)
+			outputs.push_back({ 1, 0, 0 });
+		else if (abs(fmod(p[0], 0.5)) > 0.25 && abs(fmod(p[1], 0.5)) <= 0.25)
+			outputs.push_back({ 0, 1, 0 });
 		else
-			outputs.push_back({ 0,0,1 });
+			outputs.push_back({ 0, 0, 1 });
 	}
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
