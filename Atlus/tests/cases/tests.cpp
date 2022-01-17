@@ -75,7 +75,31 @@ TEST_METHOD(classificationCross)
 
 TEST_METHOD(classificationMultiLinear3Classes)
 {
+	MLPHandler handler({ 2, 3 });
 
+	m2 inputs;
+	m2 outputs;
+
+	srand(time(NULL));
+
+	for (auto i : range(1000)) inputs.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
+	for (auto p : inputs)
+	{
+		double a = -p[0] - p[1] - 0.5;
+		double b = p[0] - p[1] - 0.5;
+
+		if (a > 0 && p[1] < 0 && b < 0)
+			outputs.push_back({ 1, 0, 0 });
+		if (a < 0 && p[1] > 0 && b < 0)
+			outputs.push_back({ 0, 1, 0 });
+		if (a < 0 && p[1] < 0 && b > 0)
+			outputs.push_back({ 0, 0, 1 });
+		else
+			outputs.push_back({ 0, 0, 0 });
+	}
+
+	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.evaluateClassification(inputs, outputs);
 }
 
 TEST_METHOD(classificationMultiCross)
