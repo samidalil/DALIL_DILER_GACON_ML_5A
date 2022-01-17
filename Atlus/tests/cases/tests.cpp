@@ -10,6 +10,9 @@ std::vector<uint> range(uint size)
 	return std::vector<uint>(size);
 }
 
+constexpr double LEARNING_RATE = 0.0005;
+constexpr uint EPOCHS = 100000;
+
 TEST_METHOD(classificationLinearSimple)
 {
 	MLPHandler handler({ 2, 1 });
@@ -17,7 +20,7 @@ TEST_METHOD(classificationLinearSimple)
 	m2 inputs = { { 1, 1 }, { 2, 3 }, {3, 3} };
 	m2 outputs = { { 1 }, { -1 }, { -1 } };
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -36,7 +39,7 @@ TEST_METHOD(classificationLinearMultiple)
 	for (auto i : range(50)) outputs.push_back({ 1 });
 	for (auto i : range(50)) outputs.push_back({ -1 });
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -47,7 +50,7 @@ TEST_METHOD(classificationXOR)
 	m2 inputs = { { 1, 0 }, { 0, 1 }, {0, 0}, {1, 1} };
 	m2 outputs = { { 1 }, { -1 }, { -1 }, {-1} };
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -69,7 +72,7 @@ TEST_METHOD(classificationCross)
 			outputs.push_back({ -1 });
 	}
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -90,15 +93,15 @@ TEST_METHOD(classificationMultiLinear3Classes)
 
 		if (a > 0 && p[1] < 0 && b < 0)
 			outputs.push_back({ 1, 0, 0 });
-		if (a < 0 && p[1] > 0 && b < 0)
+		else if (a < 0 && p[1] > 0 && b < 0)
 			outputs.push_back({ 0, 1, 0 });
-		if (a < 0 && p[1] < 0 && b > 0)
+		else if (a < 0 && p[1] < 0 && b > 0)
 			outputs.push_back({ 0, 0, 1 });
 		else
 			outputs.push_back({ 0, 0, 0 });
 	}
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -122,7 +125,7 @@ TEST_METHOD(classificationMultiCross)
 			outputs.push_back({ 0, 0, 1 });
 	}
 
-	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
 }
 
@@ -133,7 +136,7 @@ TEST_METHOD(regressionLinearSimple2D)
 	m2 inputs = { {1}, {2} };
 	m2 outputs = { { 2 }, { 3 } };
 
-	handler.trainRegression(inputs, outputs, 0.05, 10000);
+	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
 }
 
@@ -144,7 +147,7 @@ TEST_METHOD(regressionLinearNonSimple2D)
 	m2 inputs = { {1}, {2}, {3} };
 	m2 outputs = { { 2 }, { 3 }, { 2.5 } };
 
-	handler.trainRegression(inputs, outputs, 0.05, 10000);
+	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
 }
 
@@ -155,7 +158,7 @@ TEST_METHOD(regressionLinearSimple3D)
 	m2 inputs = { {1,1}, {2,2}, {3,1} };
 	m2 outputs = { { 2 }, { 3 }, {2.5} };
 
-	handler.trainRegression(inputs, outputs, 0.05, 10000);
+	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
 }
 
@@ -166,7 +169,7 @@ TEST_METHOD(regressionLinearTricky3D)
 	m2 inputs = { {1,1}, {2,2}, {3,3} };
 	m2 outputs = { { 1 }, { 2 }, {3} };
 
-	handler.trainRegression(inputs, outputs, 0.05, 10000);
+	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
 }
 
@@ -177,6 +180,6 @@ TEST_METHOD(regressionNonLinearSimple3D)
 	m2 inputs = { {1,0}, {0,1}, {1,1}, {0,0} };
 	m2 outputs = { { 2 }, { 1 }, {-2}, {-1} };
 
-	handler.trainRegression(inputs, outputs, 0.05, 10000);
+	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
 }

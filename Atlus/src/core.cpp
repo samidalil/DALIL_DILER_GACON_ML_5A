@@ -5,6 +5,8 @@
 #include <time.h>
 #include "headers/utils.h"
 
+constexpr double ERROR_EPSILON = 0.00001;
+
 /// <summary>
 /// Fait passer les valeurs en entrée à la couche de sortie en appliquant la tangente hyperbolique
 /// de la somme pondérée des valeurs de sortie des neurones de chaque couche
@@ -363,17 +365,27 @@ DllExport double evaluateModelAccuracyClassification(
 )
 {
 	uint totalGoodPredictions = 0;
+	bool good;
 	double* v;
-	double r;
 
 	for (uint i = 0; i < sampleCount; ++i)
 	{
-		v = predictMlpModelClassification(model, samplesInputs + (inputDim * i));
-		r = *v;
+		const double* input = samplesInputs + (inputDim * i);
+		const double* output = samplesExpectedOutputs + (outputDim * i);
+
+		v = predictMlpModelClassification(model, input);
+
+		good = true;
+		for (uint j = 0; j < outputDim; ++j)
+		{
+			if (v[j] - output[j] > ERROR_EPSILON)
+				good = false;
+		}
 
 		delete[] v;
-		// TD : Voir la méthode d'évaluation de précision
-		if (r * samplesExpectedOutputs[outputDim * i] >= 0) totalGoodPredictions += 1;
+	
+		if (good) ++totalGoodPredictions;
+
 	}
 
 	return (double)totalGoodPredictions / (double)sampleCount;
@@ -399,17 +411,27 @@ DllExport double evaluateModelAccuracyRegression(
 )
 {
 	uint totalGoodPredictions = 0;
+	bool good;
 	double* v;
-	double r;
 
 	for (uint i = 0; i < sampleCount; ++i)
 	{
-		v = predictMlpModelRegression(model, samplesInputs + (inputDim * i));
-		r = *v;
-		
+		const double* input = samplesInputs + (inputDim * i);
+		const double* output = samplesExpectedOutputs + (outputDim * i);
+
+		v = predictMlpModelRegression(model, input);
+
+		good = true;
+		for (uint j = 0; j < outputDim; ++j)
+		{
+			if (v[j] - output[j] > ERROR_EPSILON)
+				good = false;
+		}
+
 		delete[] v;
-		// TD : Voir la méthode d'évaluation de précision
-		if (r * samplesExpectedOutputs[outputDim * i] >= 0) totalGoodPredictions += 1;
+
+		if (good) ++totalGoodPredictions;
+
 	}
 
 	return (double)totalGoodPredictions / (double)sampleCount;
