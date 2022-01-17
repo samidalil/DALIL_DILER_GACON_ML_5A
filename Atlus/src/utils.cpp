@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-constexpr double RAND_MAX_D = (double)RAND_MAX + (double)1;
+constexpr double RAND_MAX_D = (double)RAND_MAX + 1.0;
 
 /// <summary>
 /// Génère un nombre pseudo-aléatoire

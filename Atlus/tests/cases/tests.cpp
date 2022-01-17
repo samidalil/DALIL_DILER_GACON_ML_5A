@@ -1,9 +1,14 @@
 #include "../headers/framework.h"
-#include "../headers/utils.h"
 
 #include "handler.cpp"
+#include "../../src/headers/utils.h"
 
 #include <iostream>
+
+std::vector<uint> range(uint size)
+{
+	return std::vector<uint>(size);
+}
 
 TEST_METHOD(classificationLinearSimple)
 {
@@ -25,11 +30,11 @@ TEST_METHOD(classificationLinearMultiple)
 	
 	srand(time(NULL));
 
-	for (int i = 0; i < 50; i++) inputs.push_back({ random() * 0.9 + 1.0, random() * 0.9 + 1.0 });
-	for (int i = 0; i < 50; i++) inputs.push_back({ random() * 0.9 + 2.0, random() * 0.9 + 2.0 });
+	for (auto i : range(50)) inputs.push_back({ random() * 0.9 + 1.0, random() * 0.9 + 1.0 });
+	for (auto i : range(50)) inputs.push_back({ random() * 0.9 + 2.0, random() * 0.9 + 2.0 });
 
-	for (int i = 0; i < 50; i++) outputs.push_back({ 1 });
-	for (int i = 0; i < 50; i++) outputs.push_back({ -1 });
+	for (auto i : range(50)) outputs.push_back({ 1 });
+	for (auto i : range(50)) outputs.push_back({ -1 });
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
 	handler.evaluateClassification(inputs, outputs);
@@ -48,14 +53,20 @@ TEST_METHOD(classificationXOR)
 
 TEST_METHOD(classificationCross)
 {
-	MLPHandler handler({ 2, 1 });
+	MLPHandler handler({ 2, 4, 1 });
+	
+	m2 inputs;
+	m2 outputs;
 
-	m2 inputs = classificationCrossX();
-	m2 outputs = classificationCrossY();
+	srand(time(NULL));
+
+	for (auto i : range(500)) inputs.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
+	for (auto p : inputs) outputs.push_back(
+		abs(p[0]) <= 0.3 || abs(p[1]) <= 0.3 ? m1({ 1 }) : m1({ -1 })
+	);
 
 	handler.trainClassification(inputs, outputs, 0.05, 10000);
 	handler.evaluateClassification(inputs, outputs);
-
 }
 
 TEST_METHOD(classificationMultiLinear3Classes)
