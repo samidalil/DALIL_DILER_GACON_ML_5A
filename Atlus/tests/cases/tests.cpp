@@ -1,7 +1,7 @@
 #include "../headers/framework.h"
+#include "../headers/utils.h"
 
 #include "handler.cpp"
-#include "utils.cpp"
 
 #include <iostream>
 
@@ -48,6 +48,13 @@ TEST_METHOD(classificationXOR)
 
 TEST_METHOD(classificationCross)
 {
+	MLPHandler handler({ 2, 1 });
+
+	m2 inputs = classificationCrossX();
+	m2 outputs = classificationCrossY();
+
+	handler.trainClassification(inputs, outputs, 0.05, 10000);
+	handler.evaluateClassification(inputs, outputs);
 
 }
 

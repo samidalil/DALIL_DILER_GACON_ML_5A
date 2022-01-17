@@ -29,3 +29,37 @@ std::vector<std::vector<double>> classificationLinearMultipleY() {
 
 	return m2;
 }
+
+std::vector<std::vector<double>> classificationCrossX() {
+	std::vector<std::vector<double>> m2;
+
+	srand(time(NULL));
+	for (int i = 0; i < 500; i++) {
+		m2.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
+	}
+
+	return m2;
+}
+
+std::vector<std::vector<double>> classificationCrossY() {
+	srand(time(NULL));
+
+	std::vector<std::vector<double>> X;
+	for (int i = 0; i < 500; i++) {
+		X.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
+	}
+
+	std::vector<std::vector<double>> m2;
+
+	srand(time(NULL));
+	for (int i = 0; i < 500; i++) {
+		if(abs(X[i][0])<=0.3 || abs(X[i][1]) <=0.3)
+			m2.push_back({1});
+		else
+			m2.push_back({-1});
+	}
+
+	//std::cout << "TEST TEST TEST TEST " << m2[0][0] << std::endl;
+
+	return m2;
+}
