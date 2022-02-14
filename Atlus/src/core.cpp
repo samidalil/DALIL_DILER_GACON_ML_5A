@@ -1,11 +1,66 @@
 #include "headers/core.h"
 
+#include "headers/utils.h"
+#include "headers/parser.h"
+
 #include <algorithm>
 #include <cassert>
 #include <time.h>
-#include "headers/utils.h"
+#include <iostream>
 
-constexpr double ERROR_EPSILON = 0.00001;
+void displayModelData(MLPData* model)
+{
+	std::cout << "Valeurs des poids entre les neurones" << std::endl;
+	
+	for (uint l = 1; l <= model->L; ++l)
+	{
+		std::cout << "Couche " << l << " :" << std::endl;
+
+		for (uint i = 0; i < model->npl[l - 1] + 1; ++i)
+		{
+			std::cout << "- avec couche " << i << " :" << std::endl;
+
+			for (uint j = 0; j < model->npl[l] + 1; ++j)
+				std::cout << model->W[l][i][j] << ", ";
+
+			std::cout << std::endl;
+		}
+	}
+
+	std::cout << std::endl << "Valeurs des sorties" << std::endl;
+
+	for (uint l = 0; l <= model->L; ++l)
+	{
+		std::cout << "Couche " << l + 1 << " :" << std::endl;
+
+		for (uint j = 0; j <= model->npl[l]; ++j)
+			std::cout << model->X[l][j] << ", ";
+		
+		std::cout << std::endl;
+	}
+	
+	std::cout << std::endl << "Valeurs des différences" << std::endl;
+
+	for (uint l = 0; l <= model->L; ++l)
+	{
+		std::cout << "Couche " << l + 1 << " :" << std::endl;
+
+		for (uint j = 0; j <= model->npl[l]; ++j)
+			std::cout << model->deltas[l][j] << ", ";
+
+		std::cout << std::endl;
+	}
+}
+
+#define DEBUG 0
+
+#if DEBUG
+#	define DEBUG_displayModelData(model) { displayModelData(model); }
+#else
+#	define DEBUG_displayModelData(model) {}
+#endif
+
+constexpr double ERROR_EPSILON = 0.01;
 
 /// <summary>
 /// Fait passer les valeurs en entrée à la couche de sortie en appliquant la tangente hyperbolique
@@ -86,24 +141,25 @@ void forwardPassRegression(MLPData* model, const double sampleInputs[])
 /// <param name="alpha">Pas d'apprentissage</param>
 void backpropagateAndLearnMlpModel(MLPData* model, const double alpha)
 {
-	for (uint l = model->L; l >= 2; --l)
+	for (int l = model->L; l > 1; --l)
 	{
-		for (uint i = 1; i < model->npl[l - 1] + 1; ++i)
+		for (int i = 1; i < model->npl[l - 1] + 1; ++i)
 		{
 			double total = 0.0;
-
-			for (uint j = 1; j < model->npl[l] + 1; ++j) total += model->W[l][i][j] * model->deltas[l][j];
+			
+			for (int j = 1; j < model->npl[l] + 1; ++j)
+				total += model->W[l][i][j] * model->deltas[l][j];
 
 			total *= (1 - model->X[l - 1][i] * model->X[l - 1][i]);
 			model->deltas[l - 1][i] = total;
 		}
 	}
 
-	for (uint l = 1; l < model->L + 1; ++l)
+	for (int l = 1; l < model->L + 1; ++l)
 	{
-		for (uint i = 0; i < model->npl[l - 1] + 1; ++i)
+		for (int i = 0; i < model->npl[l - 1] + 1; ++i)
 		{
-			for (uint j = 1; j < model->npl[l] + 1; ++j)
+			for (int j = 1; j < model->npl[l] + 1; ++j)
 				model->W[l][i][j] -= alpha * model->X[l - 1][i] * model->deltas[l][j];
 		}
 	}
@@ -123,7 +179,7 @@ DllExport MLPData* createMlpModel(uint npl[], uint nplSize)
 	m2 X;
 	m2 deltas;
 
-	W.reserve(nplSize - 1);
+	W.reserve(nplSize);
 	X.reserve(nplSize);
 	deltas.reserve(nplSize);
 
@@ -176,6 +232,26 @@ DllExport MLPData* createMlpModel(uint npl[], uint nplSize)
 }
 
 /// <summary>
+/// Crée une structure de données pour le modèle à partir de la chaine de caractères fournie
+/// </summary>
+/// <param name="data">Chaine de caractères contenant les informations de nombres de neurones par couches et de poids entre les neurones</param>
+/// <returns>L'adresse du modèle initialisé</returns>
+DllExport MLPData* deserializeModel(std::string data)
+{
+	return deserialize(data);
+}
+
+/// <summary>
+/// Transforme le contenu du modèle en une chaine de caractères
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <returns>Une chaine de caractères contenant les données du modèle</returns>
+DllExport std::string serializeModel(MLPData* model)
+{
+	return serialize(model);
+}
+
+/// <summary>
 /// Entraîne le modèle pour de la classification avec une entrée et sa sortie correspondante
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
@@ -191,14 +267,11 @@ DllExport void trainMlpModelClassificationSingle(
 {
 	forwardPassClassification(model, sampleInputs);
 
-	int j = 1;
-
-	std::transform(
-		model->X[model->L].begin() + 1,
-		model->X[model->L].end(),
-		model->deltas[model->L].begin() + 1,
-		[&j, &sampleExpectedOutput](double x) -> double { return (x - sampleExpectedOutput[j++ - 1]) * (1 - x * x); }
-	);
+	for (int j = 1; j < model->npl[model->L] + 1; ++j)
+	{
+		double x = model->X[model->L][j];
+		model->deltas[model->L][j] = (x - sampleExpectedOutput[j - 1]) * (1 - x * x);
+	}
 
 	backpropagateAndLearnMlpModel(model, alpha);
 }
@@ -219,14 +292,8 @@ DllExport void trainMlpModelRegressionSingle(
 {
 	forwardPassRegression(model, sampleInputs);
 
-	int j = 1;
-
-	std::transform(
-		model->X[model->L].begin() + 1,
-		model->X[model->L].end(),
-		model->deltas[model->L].begin() + 1,
-		[&j, &sampleExpectedOutput](double x) -> double { return x - sampleExpectedOutput[j++ - 1]; }
-	);
+	for (int j = 1; j < model->npl[model->L] + 1; ++j)
+		model->deltas[model->L][j] = model->X[model->L][j] - sampleExpectedOutput[j - 1];
 
 	backpropagateAndLearnMlpModel(model, alpha);
 }
@@ -258,15 +325,20 @@ DllExport void trainMlpModelClassification(
 
 	while (epochs--)
 	{
-		uint k = (rand() % sampleCount) * inputDim;
+		DEBUG_displayModelData(model);
+
+		uint randomSampleIndex = (rand() % sampleCount);
 
 		trainMlpModelClassificationSingle(
 			model,
-			samplesInputs + k,
-			samplesExpectedOutputs + k,
+			samplesInputs + (randomSampleIndex * inputDim),
+			samplesExpectedOutputs + (randomSampleIndex * outputDim),
 			alpha
 		);
+
 	}
+
+	DEBUG_displayModelData(model);
 }
 
 /// <summary>
@@ -296,15 +368,19 @@ DllExport void trainMlpModelRegression(
 
 	while (epochs--)
 	{
-		uint k = (rand() % sampleCount) * inputDim;
+		DEBUG_displayModelData(model);
+		
+		uint randomSampleIndex = rand() % sampleCount;
 
 		trainMlpModelRegressionSingle(
 			model,
-			samplesInputs + k,
-			samplesExpectedOutputs + k,
+			samplesInputs + (randomSampleIndex * inputDim),
+			samplesExpectedOutputs + (randomSampleIndex * outputDim),
 			alpha
 		);
 	}
+
+	DEBUG_displayModelData(model);
 }
 
 /// <summary>
@@ -318,7 +394,7 @@ DllExport double* predictMlpModelClassification(
 	const double sampleInputs[]
 )
 {
-	double* result = new double[model->X[model->L].size() - 1];
+	double* result = new double[model->npl[model->L]];
 
 	forwardPassClassification(model, sampleInputs);
 	std::copy(model->X[model->L].begin() + 1, model->X[model->L].end(), result);
@@ -337,7 +413,7 @@ DllExport double* predictMlpModelRegression(
 	const double sampleInputs[]
 )
 {
-	double* result = new double[model->X[model->L].size() - 1];
+	double* result = new double[model->npl[model->L]];
 
 	forwardPassRegression(model, sampleInputs);
 	std::copy(model->X[model->L].begin() + 1, model->X[model->L].end(), result);
@@ -366,23 +442,23 @@ DllExport double evaluateModelAccuracyClassification(
 {
 	uint totalGoodPredictions = 0;
 	bool good;
-	double* v;
+	double* prediction;
 
 	for (uint i = 0; i < sampleCount; ++i)
 	{
 		const double* input = samplesInputs + (inputDim * i);
 		const double* output = samplesExpectedOutputs + (outputDim * i);
 
-		v = predictMlpModelClassification(model, input);
-
+		prediction = predictMlpModelClassification(model, input);
 		good = true;
+
 		for (uint j = 0; j < outputDim; ++j)
 		{
-			if (v[j] - output[j] > ERROR_EPSILON)
+			if (prediction[j] * output[j] < 0)
 				good = false;
 		}
 
-		delete[] v;
+		delete[] prediction;
 	
 		if (good) ++totalGoodPredictions;
 
@@ -412,23 +488,23 @@ DllExport double evaluateModelAccuracyRegression(
 {
 	uint totalGoodPredictions = 0;
 	bool good;
-	double* v;
+	double* prediction;
 
 	for (uint i = 0; i < sampleCount; ++i)
 	{
 		const double* input = samplesInputs + (inputDim * i);
 		const double* output = samplesExpectedOutputs + (outputDim * i);
 
-		v = predictMlpModelRegression(model, input);
-
+		prediction = predictMlpModelRegression(model, input);
 		good = true;
+
 		for (uint j = 0; j < outputDim; ++j)
 		{
-			if (v[j] - output[j] > ERROR_EPSILON)
+			if (abs(prediction[j] - output[j]) > ERROR_EPSILON)
 				good = false;
 		}
 
-		delete[] v;
+		delete[] prediction;
 
 		if (good) ++totalGoodPredictions;
 

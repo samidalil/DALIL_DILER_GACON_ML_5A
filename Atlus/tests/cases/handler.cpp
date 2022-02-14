@@ -2,10 +2,14 @@
 
 #include <vector>
 #include <iterator>
+#include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 struct MLPHandler
 {
+public:
 	static double* flatSamples(m2 samples)
 	{
 		uint sampleCount = samples.size();
@@ -20,6 +24,19 @@ struct MLPHandler
 
 	MLPData* model;
 	uint outputDim;
+
+	MLPHandler(const char* path)
+	{
+		std::ifstream file(path);
+		std::stringstream buffer;
+
+		buffer << file.rdbuf();
+
+		file.close();
+
+		this->model = deserializeModel(buffer.str());
+		this->outputDim = this->model->npl[this->model->L];
+	}
 
 	MLPHandler(std::vector<uint> npl)
 	{
@@ -89,6 +106,15 @@ struct MLPHandler
 		delete[] resultArr;
 
 		return result;
+	}
+
+	void save(std::string path)
+	{
+		std::ofstream file(path);
+
+		file << serializeModel(this->model);
+
+		file.close();
 	}
 
 	void trainClassification(m2 inputs, m2 outputs, double alpha, uint epochs)

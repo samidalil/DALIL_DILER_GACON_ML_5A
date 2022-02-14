@@ -11,13 +11,13 @@ std::vector<uint> range(uint size)
 }
 
 constexpr double LEARNING_RATE = 0.0005;
-constexpr uint EPOCHS = 100000;
+constexpr uint EPOCHS = 1000000;
 
 TEST_METHOD(classificationLinearSimple)
 {
 	MLPHandler handler({ 2, 1 });
 
-	m2 inputs = { { 1, 1 }, { 2, 3 }, {3, 3} };
+	m2 inputs = { { 1, 1 }, { 2, 3 }, { 3, 3 } };
 	m2 outputs = { { 1 }, { -1 }, { -1 } };
 
 	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
@@ -47,8 +47,18 @@ TEST_METHOD(classificationXOR)
 {
 	MLPHandler handler({ 2, 2, 1 });
 
-	m2 inputs = { { 1, 0 }, { 0, 1 }, {0, 0}, {1, 1} };
-	m2 outputs = { { 1 }, { -1 }, { -1 }, {-1} };
+	m2 inputs = {
+		{ 1, 0 },
+		{ 0, 1 },
+		{ 0, 0 },
+		{ 1, 1 }
+	};
+	m2 outputs = {
+		{ 1 },
+		{ -1 },
+		{ -1 },
+		{ -1 }
+	};
 
 	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateClassification(inputs, outputs);
@@ -56,7 +66,7 @@ TEST_METHOD(classificationXOR)
 
 TEST_METHOD(classificationCross)
 {
-	MLPHandler handler({ 2, 4, 1 });
+	MLPHandler handler({ 2, 3, 1 });
 	
 	m2 inputs;
 	m2 outputs;
@@ -73,6 +83,29 @@ TEST_METHOD(classificationCross)
 	}
 
 	handler.trainClassification(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateClassification(inputs, outputs);
+
+	handler.save("cross.atlus");
+}
+
+TEST_METHOD(loadCross)
+{
+	MLPHandler handler("cross.atlus");
+
+	m2 inputs;
+	m2 outputs;
+
+	srand(time(NULL));
+
+	for (auto i : range(500)) inputs.push_back({ random() * 2.0 - 1.0, random() * 2.0 - 1.0 });
+	for (auto p : inputs)
+	{
+		if (abs(p[0]) <= 0.3 || abs(p[1]) <= 0.3)
+			outputs.push_back({ 1 });
+		else
+			outputs.push_back({ -1 });
+	}
+
 	handler.evaluateClassification(inputs, outputs);
 }
 

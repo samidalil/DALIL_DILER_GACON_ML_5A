@@ -34,5 +34,5 @@ struct MLPData
 	/// <param name="npl">Neurones par couche</param>
 	/// <param name="X">Matrice de sorties</param>
 	/// <param name="deltas">Matrice de différences</param>
-	MLPData(m3 W, std::vector<uint> npl, m2 X, m2 deltas) : W(W), npl(npl), X(X), deltas(deltas), L(npl.size() - 1) {}
+	MLPData(const m3& W, const std::vector<uint>& npl, const m2& X, const m2& deltas) : W(W), npl(npl), X(X), deltas(deltas), L(npl.size() - 1) {}
 };

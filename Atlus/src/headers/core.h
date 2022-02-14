@@ -2,6 +2,8 @@
 
 #include "MLPData.h"
 
+#include <string>
+
 #ifndef DllExport
 #define DllExport extern "C" __declspec(dllexport)
 #endif
@@ -45,6 +47,20 @@ void backpropagateAndLearnMlpModel(MLPData* model, const double alpha);
 /// <param name="nplSize">Taille du tableau</param>
 /// <returns>L'adresse du modèle</returns>
 DllExport MLPData* createMlpModel(uint npl[], uint nplSize);
+
+/// <summary>
+/// Crée une structure de données pour le modèle à partir de la chaine de caractères fournie
+/// </summary>
+/// <param name="data">Chaine de caractères contenant les informations de nombres de neurones par couches et de poids entre les neurones</param>
+/// <returns>L'adresse du modèle initialisé</returns>
+DllExport MLPData* deserializeModel(std::string data);
+
+/// <summary>
+/// Transforme le contenu du modèle en une chaine de caractères
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <returns>Une chaine de caractères contenant les données du modèle</returns>
+DllExport std::string serializeModel(MLPData* model);
 
 /// <summary>
 /// Entraîne le modèle pour de la classification avec une entrée et sa sortie correspondante
