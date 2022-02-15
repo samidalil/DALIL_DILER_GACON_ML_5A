@@ -8,6 +8,11 @@
 #include <time.h>
 #include <iostream>
 
+double vectorNorm(double x, double y) {
+	std::complex<double> mycomplex(x, y);
+	return (sqrt(std::norm(mycomplex)));
+}
+
 void displayModelData(MLPData* model)
 {
 	std::cout << "Valeurs des poids entre les neurones" << std::endl;
@@ -61,6 +66,7 @@ void displayModelData(MLPData* model)
 #endif
 
 constexpr double ERROR_EPSILON = 0.01;
+constexpr double GAMMA_RBF = 0.2;
 
 /// <summary>
 /// Fait passer les valeurs en entrée à la couche de sortie en appliquant la tangente hyperbolique
@@ -130,6 +136,54 @@ void forwardPassRegression(MLPData* model, const double sampleInputs[])
 		for (uint i = 0; i < model->npl[model->L - 1] + 1; ++i)
 			total += model->W[model->L][i][j] * model->X[model->L - 1][i];
 
+		model->X[model->L][j] = total;
+	}
+}
+
+/// <summary>
+///
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+void forwardPassRBF(MLPData* model, const double sampleInputs[])
+{
+	for (uint j = 1; j < model->npl[0] + 1; ++j) model->X[0][j] = sampleInputs[j - 1];
+
+	double total;
+
+	for (uint l = 1; l < model->L - 1; ++l)
+	{
+		for (uint j = 1; j < model->npl[l] + 1; ++j)
+		{
+			total = 0.0;
+
+			for (uint i = 0; i < model->npl[l - 1] + 1; ++i)
+				total += model->W[l][i][j] * model->X[l - 1][i];
+
+			model->X[l][j] = tanh( total*exp(-GAMMA_RBF * pow(vectorNorm(model->X[l][j], model->W[l][model->npl[l - 1]][j]), 2)) );
+			//model->X[l][j] = tanh(total);
+		}
+	}
+
+	for (uint j = 1; j < model->npl[model->L] + 1; ++j)
+	{
+		total = 0.0;
+
+		for (uint i = 0; i < model->npl[model->L - 1] + 1; ++i)
+			total += model->W[model->L][i][j] * model->X[model->L - 1][i];
+
+		//model->X[model->L][j] = total * exp(-GAMMA_RBF * pow(vectorNorm(model->X[model->L][j], model->W[model->L][model->npl[model->L - 1]][j]), 2));
+		model->X[model->L][j] = total;
+	}
+
+	for (uint j = 1; j < model->npl[model->L] + 1; ++j)
+	{
+		total = 0.0;
+
+		for (uint i = 0; i < model->npl[model->L - 1] + 1; ++i)
+			total += model->W[model->L][i][j] * model->X[model->L - 1][i];
+
+		//model->X[model->L][j] = total * exp(-GAMMA_RBF * pow(vectorNorm(model->X[model->L][j], model->W[model->L][model->npl[model->L - 1]][j]), 2));
 		model->X[model->L][j] = total;
 	}
 }
@@ -299,6 +353,28 @@ DllExport void trainMlpModelRegressionSingle(
 }
 
 /// <summary>
+/// Entraîne le modèle pour de la RBF Naïf avec une entrée et sa sortie correspondante
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <param name="sampleExpectedOutput">Valeurs de sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+DllExport void trainMlpModelRBFSingle(
+	MLPData* model,
+	const double sampleInputs[],
+	const double sampleExpectedOutput[],
+	const double alpha
+)
+{
+	forwardPassRBF(model, sampleInputs);
+
+	for (int j = 1; j < model->npl[model->L] + 1; ++j)
+		model->deltas[model->L][j] = model->X[model->L][j] - sampleExpectedOutput[j - 1];
+
+	backpropagateAndLearnMlpModel(model, alpha);
+}
+
+/// <summary>
 /// Entraîne le modèle pour de la classification avec plusieurs entrées et leurs sorties correspondantes
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
@@ -384,6 +460,48 @@ DllExport void trainMlpModelRegression(
 }
 
 /// <summary>
+/// Entraîne le modèle pour de la rbf naïf avec plusieurs entrées et leurs sorties correspondantes
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons d'entraînement</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+/// <param name="epochs">Nombre d'epochs pour cet entraînement</param>
+DllExport void trainMlpModelRBF(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim,
+	const double alpha,
+	uint epochs
+)
+{
+	assert(("Input should have as many elements as there are neurons on the first hidden layer", inputDim == model->npl[0]));
+	assert(("Output should have as many elements as there are neurons on the last hidden layer", outputDim == model->npl[model->L]));
+
+	while (epochs--)
+	{
+		DEBUG_displayModelData(model);
+
+		uint randomSampleIndex = rand() % sampleCount;
+
+		trainMlpModelRBFSingle(
+			model,
+			samplesInputs + (randomSampleIndex * inputDim),
+			samplesExpectedOutputs + (randomSampleIndex * outputDim),
+			alpha
+		);
+	}
+
+	DEBUG_displayModelData(model);
+}
+
+/// <summary>
 /// Retourne la prédiction de classification pour l'entrée fournie
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
@@ -416,6 +534,25 @@ DllExport double* predictMlpModelRegression(
 	double* result = new double[model->npl[model->L]];
 
 	forwardPassRegression(model, sampleInputs);
+	std::copy(model->X[model->L].begin() + 1, model->X[model->L].end(), result);
+
+	return result;
+}
+
+/// <summary>
+/// Retourne la prédiction de rbf naïf pour l'entrée fournie
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <returns>Valeurs de sorties prédites</returns>
+DllExport double* predictMlpModelRBF(
+	MLPData* model,
+	const double sampleInputs[]
+)
+{
+	double* result = new double[model->npl[model->L]];
+
+	forwardPassRBF(model, sampleInputs);
 	std::copy(model->X[model->L].begin() + 1, model->X[model->L].end(), result);
 
 	return result;
@@ -496,6 +633,52 @@ DllExport double evaluateModelAccuracyRegression(
 		const double* output = samplesExpectedOutputs + (outputDim * i);
 
 		prediction = predictMlpModelRegression(model, input);
+		good = true;
+
+		for (uint j = 0; j < outputDim; ++j)
+		{
+			if (abs(prediction[j] - output[j]) > ERROR_EPSILON)
+				good = false;
+		}
+
+		delete[] prediction;
+
+		if (good) ++totalGoodPredictions;
+
+	}
+
+	return (double)totalGoodPredictions / (double)sampleCount;
+}
+
+/// <summary>
+/// Evalue le taux de précision du modèle de régression
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons de test</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <returns>Taux de précision du modèle</returns>
+DllExport double evaluateModelAccuracyRBF(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim
+)
+{
+	uint totalGoodPredictions = 0;
+	bool good;
+	double* prediction;
+
+	for (uint i = 0; i < sampleCount; ++i)
+	{
+		const double* input = samplesInputs + (inputDim * i);
+		const double* output = samplesExpectedOutputs + (outputDim * i);
+
+		prediction = predictMlpModelRBF(model, input);
 		good = true;
 
 		for (uint j = 0; j < outputDim; ++j)

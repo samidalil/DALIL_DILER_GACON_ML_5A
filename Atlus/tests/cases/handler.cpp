@@ -80,6 +80,21 @@ public:
 		return result;
 	}
 
+	double evaluateRBF(m2 inputs, m2 outputs)
+	{
+		const double* inputArr = flatSamples(inputs);
+		const double* outputArr = flatSamples(outputs);
+
+		const double result = evaluateModelAccuracyRBF(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size()) * 100;
+
+		delete[] inputArr;
+		delete[] outputArr;
+
+		std::cout << "Accuracy : " << result << "%" << std::endl;
+
+		return result;
+	}
+
 	m1 predictClassification(m1 input)
 	{
 		const double* resultArr = predictMlpModelClassification(this->model, input.data());
@@ -90,6 +105,8 @@ public:
 		std::copy(resultArr, resultArr + this->outputDim, std::back_inserter(result));
 
 		delete[] resultArr;
+
+		std::cout << "Predict : " << result[0] << std::endl;
 
 		return result;
 	}
@@ -134,6 +151,17 @@ public:
 		const double* outputArr = flatSamples(outputs);
 
 		trainMlpModelRegression(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size(), alpha, epochs);
+
+		delete[] inputArr;
+		delete[] outputArr;
+	}
+
+	void trainRBF(m2 inputs, m2 outputs, double alpha, uint epochs)
+	{
+		const double* inputArr = flatSamples(inputs);
+		const double* outputArr = flatSamples(outputs);
+
+		trainMlpModelRBF(this->model, inputArr, outputArr, inputs.size(), inputs[0].size(), outputs[0].size(), alpha, epochs);
 
 		delete[] inputArr;
 		delete[] outputArr;

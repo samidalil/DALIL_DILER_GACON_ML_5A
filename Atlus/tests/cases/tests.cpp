@@ -13,7 +13,7 @@ std::vector<uint> range(uint size)
 constexpr double LEARNING_RATE = 0.0005;
 constexpr uint EPOCHS = 1000000;
 
-TEST_METHOD(classificationLinearSimple)
+/*TEST_METHOD(classificationLinearSimple)
 {
 	MLPHandler handler({ 2, 1 });
 
@@ -215,4 +215,60 @@ TEST_METHOD(regressionNonLinearSimple3D)
 
 	handler.trainRegression(inputs, outputs, LEARNING_RATE, EPOCHS);
 	handler.evaluateRegression(inputs, outputs);
+}
+*/
+
+TEST_METHOD(regressionLinearSimple2DRBF)
+{
+	MLPHandler handler({ 1, 1 });
+
+	m2 inputs = { {1}, {2} };
+	m2 outputs = { { 2 }, { 3 } };
+
+	handler.trainRBF(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateRBF(inputs, outputs);
+}
+
+TEST_METHOD(regressionLinearNonSimple2DRBF)
+{
+	MLPHandler handler({ 1, 3, 1 });
+
+	m2 inputs = { {1}, {2}, {3} };
+	m2 outputs = { { 2 }, { 3 }, { 2.5 } };
+
+	handler.trainRBF(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateRBF(inputs, outputs);
+}
+
+TEST_METHOD(regressionLinearSimple3DRBF)
+{
+	MLPHandler handler({ 2, 1 });
+
+	m2 inputs = { {1,1}, {2,2}, {3,1} };
+	m2 outputs = { { 2 }, { 3 }, {2.5} };
+
+	handler.trainRBF(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateRBF(inputs, outputs);
+}
+
+TEST_METHOD(regressionLinearTricky3DRBF)
+{
+	MLPHandler handler({ 2, 1 });
+
+	m2 inputs = { {1,1}, {2,2}, {3,3} };
+	m2 outputs = { { 1 }, { 2 }, {3} };
+
+	handler.trainRBF(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateRBF(inputs, outputs);
+}
+
+TEST_METHOD(regressionNonLinearSimple3DRBF)
+{
+	MLPHandler handler({ 2, 2, 1 });
+
+	m2 inputs = { {1,0}, {0,1}, {1,1}, {0,0} };
+	m2 outputs = { { 2 }, { 1 }, {-2}, {-1} };
+
+	handler.trainRBF(inputs, outputs, LEARNING_RATE, EPOCHS);
+	handler.evaluateRBF(inputs, outputs);
 }

@@ -30,6 +30,13 @@ void forwardPassClassification(MLPData* model, const double sampleInputs[]);
 void forwardPassRegression(MLPData* model, const double sampleInputs[]);
 
 /// <summary>
+///
+/// </summary>
+/// <param name="model">Données du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+void forwardPassRBF(MLPData* model, const double sampleInputs[]);
+
+/// <summary>
 /// Rétropropage les valeurs d'erreur
 /// </summary>
 /// <param name="model">Données du modèle</param>
@@ -91,6 +98,20 @@ DllExport void trainMlpModelRegressionSingle(
 );
 
 /// <summary>
+/// Entraîne le modèle pour de RBF avec une entrée et sa sortie correspondante
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <param name="sampleExpectedOutput">Valeurs de sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+DllExport void trainMlpModelRBFSingle(
+	MLPData* model,
+	const double sampleInputs[],
+	const double sampleExpectedOutput[],
+	const double alpha
+);
+
+/// <summary>
 /// Entraîne le modèle pour de la classification avec plusieurs entrées et leurs sorties correspondantes
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
@@ -135,6 +156,28 @@ DllExport void trainMlpModelRegression(
 );
 
 /// <summary>
+/// Entraîne le modèle pour de RBF avec plusieurs entrées et leurs sorties correspondantes
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons d'entraînement</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <param name="alpha">Pas d'apprentissage</param>
+/// <param name="epochs">Nombre d'epochs pour cet entraînement</param>
+DllExport void trainMlpModelRBF(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim,
+	const double alpha,
+	uint nbIter
+);
+
+/// <summary>
 /// Retourne la prédiction de classification pour l'entrée fournie
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
@@ -149,6 +192,14 @@ DllExport double* predictMlpModelClassification(MLPData* model, const double sam
 /// <param name="sampleInputs">Valeurs d'entrée</param>
 /// <returns>Valeurs de sorties prédites</returns>
 DllExport double* predictMlpModelRegression(MLPData* model, const double sampleInputs[]);
+
+/// <summary>
+/// Retourne la prédiction de RBF pour l'entrée fournie
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="sampleInputs">Valeurs d'entrée</param>
+/// <returns>Valeurs de sorties prédites</returns>
+DllExport double* predictMlpModelRBF(MLPData* model, const double sampleInputs[]);
 
 /// <summary>
 /// Evalue le taux de précision du modèle de classification
@@ -180,6 +231,25 @@ DllExport double evaluateModelAccuracyClassification(
 /// <param name="outputDim">Taille d'une sortie</param>
 /// <returns>Taux de précision du modèle</returns>
 DllExport double evaluateModelAccuracyRegression(
+	MLPData* model,
+	const double samplesInputs[],
+	const double samplesExpectedOutputs[],
+	const uint sampleCount,
+	const uint inputDim,
+	const uint outputDim
+);
+
+/// <summary>
+/// Evalue le taux de précision du modèle de RBF
+/// </summary>
+/// <param name="model">Adresse du modèle</param>
+/// <param name="samplesInputs">Tableau d'entrées</param>
+/// <param name="samplesExpectedOutputs">Tableau de sorties</param>
+/// <param name="sampleCount">Nombre d'échantillons de test</param>
+/// <param name="inputDim">Taille d'une entrée</param>
+/// <param name="outputDim">Taille d'une sortie</param>
+/// <returns>Taux de précision du modèle</returns>
+DllExport double evaluateModelAccuracyRBF(
 	MLPData* model,
 	const double samplesInputs[],
 	const double samplesExpectedOutputs[],
