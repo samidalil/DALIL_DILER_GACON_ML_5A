@@ -34,7 +34,7 @@ public:
 
 		file.close();
 
-		this->model = deserializeModel(buffer.str());
+		this->model = deserializeModel(buffer.str().c_str());
 		this->outputDim = this->model->npl[this->model->L];
 	}
 
@@ -47,7 +47,7 @@ public:
 
 	~MLPHandler()
 	{
-		delete this->model;
+		destroyMlpModel(this->model);
 	}
 
 	double evaluateClassification(m2 inputs, m2 outputs)
@@ -89,7 +89,7 @@ public:
 
 		std::copy(resultArr, resultArr + this->outputDim, std::back_inserter(result));
 
-		delete[] resultArr;
+		destroyMlpResult(resultArr);
 
 		return result;
 	}
@@ -103,7 +103,7 @@ public:
 
 		std::copy(resultArr, resultArr + this->outputDim, std::back_inserter(result));
 
-		delete[] resultArr;
+		destroyMlpResult(resultArr);
 
 		return result;
 	}
@@ -112,7 +112,11 @@ public:
 	{
 		std::ofstream file(path);
 
-		file << serializeModel(this->model);
+		const char* data = serializeModel(this->model);
+
+		file << data;
+
+		destroyMlpSerializedData(data);
 
 		file.close();
 	}

@@ -53,14 +53,14 @@ DllExport MLPData* createMlpModel(uint npl[], uint nplSize);
 /// </summary>
 /// <param name="data">Chaine de caractères contenant les informations de nombres de neurones par couches et de poids entre les neurones</param>
 /// <returns>L'adresse du modèle initialisé</returns>
-DllExport MLPData* deserializeModel(std::string data);
+DllExport MLPData* deserializeModel(const char* data);
 
 /// <summary>
 /// Transforme le contenu du modèle en une chaine de caractères
 /// </summary>
 /// <param name="model">Adresse du modèle</param>
 /// <returns>Une chaine de caractères contenant les données du modèle</returns>
-DllExport std::string serializeModel(MLPData* model);
+DllExport char* serializeModel(MLPData* model);
 
 /// <summary>
 /// Entraîne le modèle pour de la classification avec une entrée et sa sortie correspondante
@@ -200,5 +200,12 @@ DllExport void destroyMlpModel(MLPData* model);
 /// <param name="result">Adresse du tableau de données</param>
 /// <returns></returns>
 DllExport void destroyMlpResult(const double* result);
+
+/// <summary>
+/// Détruit la châîne de caractères de sérialisation du modèle
+/// </summary>
+/// <param name="data">Données sérialisées du modèle</param>
+/// <returns></returns>
+DllExport void destroyMlpSerializedData(const char* data);
 
 #pragma endregion
